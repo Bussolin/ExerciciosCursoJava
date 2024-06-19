@@ -8,9 +8,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class DepartmentDaoJDBC implements DepartmentDAO {
 
@@ -30,34 +29,52 @@ public class DepartmentDaoJDBC implements DepartmentDAO {
             int rowsAffected = ps.executeUpdate();
             System.out.println( rowsAffected );
         } catch (SQLException ex) {
-            Logger.getLogger(SellerDaoJDBC.class.getName()).log(Level.SEVERE, null, ex);
-        }finally{
-            DB.closeConnection();
+            throw new DbException( ex.getMessage() );
         }
     }
 
     @Override
     public void update(Department departmentUpdate) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        String insertQuery = "UPDATE Department SET name = ?"
+                                                + "WHERE id = ?;";
+        Connection connection = DB.getConnection();
+        
+        try( PreparedStatement ps = connection.prepareStatement(insertQuery)){
+            ps.setString( 1, departmentUpdate.getName() );
+            ps.setInt(2, departmentUpdate.getId() );
+            int rowsAffected = ps.executeUpdate();
+            System.out.println( rowsAffected );
+        } catch (SQLException ex) {
+            throw new DbException( ex.getMessage() );
+        }
     }
 
     @Override
     public void delete(Integer id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+                String insertQuery = "DELETE FROM Department WHERE id = ?;";
+        Connection connection = DB.getConnection();
+        
+        try( PreparedStatement ps = connection.prepareStatement(insertQuery)){
+            ps.setInt(1, id );
+            int rowsAffected = ps.executeUpdate();
+            System.out.println( rowsAffected );
+        } catch (SQLException ex) {
+            throw new DbException( ex.getMessage() );
+        }
     }
 
     @Override
     public Department findById(Integer id) {
-                String selectQuery = "SELECT * FROM Department WHERE id = ?;";
+        String selectQuery = "SELECT * FROM Department WHERE id = ?;";
         
         try( PreparedStatement ps = conn.prepareStatement( selectQuery )){
-        ps.setInt( 1, id);
-        ResultSet rs = ps.executeQuery();
-        if( rs.next() ){
-            Department dep = new Department( rs.getInt("id"), rs.getString("name"));
-            return dep;
-        }
-        return null;
+            ps.setInt( 1, id);
+            ResultSet rs = ps.executeQuery();
+            if( rs.next() ){
+                Department dep = new Department( rs.getInt("id"), rs.getString("name"));
+                return dep;
+            }
+            return null;
         } catch (SQLException ex) {
             throw new DbException( ex.getMessage() );
         }
@@ -65,7 +82,18 @@ public class DepartmentDaoJDBC implements DepartmentDAO {
 
     @Override
     public List<Department> findAll() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        String selectQuery = "SELECT * FROM Department;";
+        
+        try( PreparedStatement ps = conn.prepareStatement( selectQuery )){
+            ResultSet rs = ps.executeQuery();
+            List<Department> departments = new ArrayList<>();
+            if( rs.next() ){
+                departments.add( new Department( rs.getInt("id"), rs.getString("name")));
+            }
+            return departments;
+        } catch (SQLException ex) {
+            throw new DbException( ex.getMessage() );
+        }
     }
     
 }

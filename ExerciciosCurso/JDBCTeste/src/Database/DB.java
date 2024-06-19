@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class DB {
@@ -54,6 +56,14 @@ public class DB {
             return ps;
         } catch (IOException ex) {
             throw new DbException( ex.getMessage() );
+        }
+    }
+    
+    public static void rollBack(){
+        try {
+            conn.rollback();
+        } catch (SQLException ex) {
+            Logger.getLogger(DB.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
