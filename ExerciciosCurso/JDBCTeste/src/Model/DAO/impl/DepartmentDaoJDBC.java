@@ -1,10 +1,12 @@
 package Model.DAO.impl;
 
 import Database.DB;
+import Database.DbException;
 import Model.DAO.DepartmentDAO;
 import Model.entities.Department;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
@@ -12,6 +14,12 @@ import java.util.logging.Logger;
 
 public class DepartmentDaoJDBC implements DepartmentDAO {
 
+    private Connection conn;
+
+    public DepartmentDaoJDBC(Connection conn) {
+        this.conn = conn;
+    }    
+    
     @Override
     public void create(Department departmentCreate) {
         String insertQuery = "INSERT INTO Department( name ) VALUES ( ? );";
@@ -40,7 +48,19 @@ public class DepartmentDaoJDBC implements DepartmentDAO {
 
     @Override
     public Department findById(Integer id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+                String selectQuery = "SELECT * FROM Department WHERE id = ?;";
+        
+        try( PreparedStatement ps = conn.prepareStatement( selectQuery )){
+        ps.setInt( 1, id);
+        ResultSet rs = ps.executeQuery();
+        if( rs.next() ){
+            Department dep = new Department( rs.getInt("id"), rs.getString("name"));
+            return dep;
+        }
+        return null;
+        } catch (SQLException ex) {
+            throw new DbException( ex.getMessage() );
+        }
     }
 
     @Override

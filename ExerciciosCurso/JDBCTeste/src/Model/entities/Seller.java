@@ -16,6 +16,9 @@ public class Seller implements Serializable {
     
     private Department departament;
 
+    public Seller() {
+    }
+    
     public Seller( String name, String email, LocalDate birthDate, Double baseSalary, Department departament) {
         this.name = name;
         this.email = email;
