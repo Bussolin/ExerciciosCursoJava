@@ -3,14 +3,14 @@ package Model.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Departament implements Serializable {
+public class Department implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
     private Integer id;
     private String name;
 
-    public Departament(Integer id, String name) {
+    public Department(Integer id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -49,7 +49,7 @@ public class Departament implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Departament other = (Departament) obj;
+        final Department other = (Department) obj;
         if (!Objects.equals(this.name, other.name)) {
             return false;
         }

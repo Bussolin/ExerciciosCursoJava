@@ -1,29 +1,37 @@
 package Program;
 
-import Database.DB;
-import Database.DbException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import Model.DAO.DaoFactory;
+import Model.DAO.DepartmentDAO;
+import Model.DAO.SellerDAO;
+import Model.entities.Department;
+import Model.entities.Seller;
+import java.time.LocalDate;
 
 public class App {
     public static void main(String[] args) {
-        String selectQuery = "select Nome, id_cat from produto WHERE id = ?";
-        Connection conn = DB.getConnection();
-        ResultSet rs = null;
-        try(PreparedStatement ps = conn.prepareStatement(selectQuery)) {
-            ps.setInt(1, 1);
-            rs = ps.executeQuery();
-            while( rs.next() ){
-                System.out.println( rs.getString( "Nome") + ": " +  rs.getInt("id_cat"));
-            }
-        } catch (DbException | SQLException e ) {
-            System.out.println( e.getMessage() );
-        }finally{
-            DB.closeConnection();
-            DB.closeResultSet( rs );
-        }
+        SellerDAO sellerDao = DaoFactory.createSellerDao();
+        DepartmentDAO departmentDao = DaoFactory.createDepartmentDAO();
+        
+        Department dp = new Department( 1, "Development");
+        Seller seller = new Seller(  "Luis", "luis@gmail.com", LocalDate.parse("2004-06-21"), 9200.00, dp  );
+        
+        departmentDao.create( dp );
+        sellerDao.create( seller );
+        
+//        String selectQuery = "select Nome, id_cat from produto WHERE id = ?";
+//        Connection conn = DB.getConnection();
+//        ResultSet rs = null;
+//        try(PreparedStatement ps = conn.prepareStatement(selectQuery)) {
+//            ps.setInt(1, 1);
+//            rs = ps.executeQuery();
+//            while( rs.next() ){
+//                System.out.println( rs.getString( "Nome") + ": " +  rs.getInt("id_cat"));
+//            }
+//        } catch (DbException | SQLException e ) {
+//            System.out.println( e.getMessage() );
+//        }finally{
+//            DB.closeConnection();
+//            DB.closeResultSet( rs );
+//        }
     }
-    
 }
