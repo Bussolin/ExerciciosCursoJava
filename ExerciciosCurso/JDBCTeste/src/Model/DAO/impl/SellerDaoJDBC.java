@@ -7,11 +7,14 @@ import Model.entities.Department;
 import Model.entities.Seller;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SellerDaoJDBC implements SellerDAO{
 
@@ -24,7 +27,7 @@ public class SellerDaoJDBC implements SellerDAO{
     @Override
     public void create(Seller sellerCreate) {
         String insertQuery = "INSERT INTO Seller( name, email, birthDate, baseSalary, id_dep ) VALUES ( ?, ?, ?, ?, ? );";
-        try( PreparedStatement ps = this.conn.prepareStatement(insertQuery)){
+        try( PreparedStatement ps = this.conn.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS )){
              conn.setAutoCommit( false );
             ps.setString( 1, sellerCreate.getName() );
             ps.setString( 2, sellerCreate.getEmail() );
@@ -32,6 +35,10 @@ public class SellerDaoJDBC implements SellerDAO{
             ps.setDouble( 4, sellerCreate.getBaseSalary() );
             ps.setInt( 5, sellerCreate.getDepartament().getId() );
             if( ps.executeUpdate() != 0 ){
+                ResultSet rs = ps.getGeneratedKeys();
+                if( rs.next() ){
+                    sellerCreate.setId( rs.getInt( 1 ) );
+                }
                 System.out.println("Sucess!");
                 conn.commit();
             }
@@ -109,8 +116,12 @@ public class SellerDaoJDBC implements SellerDAO{
         try( PreparedStatement ps = conn.prepareStatement( selectQuery )){
             ResultSet rs = ps.executeQuery();
             List<Seller> sellers = new ArrayList<>();
+            Map<Integer,Department> deps = new HashMap<>();
             while( rs.next() ){
-                sellers.add( instanceSeller( rs, instanceDepartment( rs ) )); 
+                if( !deps.containsKey( rs.getInt("s.id_dep") )){
+                    deps.put(rs.getInt("s.id_dep"), instanceDepartment( rs ) );
+                }
+                sellers.add( instanceSeller( rs, deps.get( rs.getInt( "s.id_dep" ) ) ) ); 
             }
             return sellers;
         } catch (SQLException ex) {
